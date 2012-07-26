@@ -1,11 +1,13 @@
 {
   "name": "Jirafy",
   "version": "0.1",
-  "description": "Linkifies JIRA ticket numbers on select pages.",
+  "dummy-comment": "IF YOU CHANGE THE VERSION, CHANGE IT IN updates.xml TOO",
+  "description": "Linkifies JIRA ticket numbers on select pages.  Click the 'Options' link to configure which pages to parse and which JIRA projects should be linked.",
   "icons": { "128": "icon_128.png" },
   "background": {
     "scripts": ["bg.js"]
   },
+  "update_url": "https://git.squareup.com/edenman/jirafy/raw/master/updates.xml",
   "content_scripts": [
     {
       "matches": [
