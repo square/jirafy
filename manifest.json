@@ -1,0 +1,24 @@
+{
+  "name": "Jirafy",
+  "version": "0.1",
+  "description": "Linkifies JIRA ticket numbers on select pages.",
+  "icons": { "128": "icon_128.png" },
+  "background": {
+    "scripts": ["bg.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "jquery-1.7.2.min.js",
+        "jirafy.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "options_page": "jirafy-config.html"
+}

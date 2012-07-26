@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>Jirafy Configuration</title>
+  </head>
+
+<script type="text/javascript">
+  // Saves options to localStorage.
+  function save_options() {
+    var hostnames = document.getElementById("hostnames_to_jirafy");
+    localStorage["hostnames_to_jirafy"] = hostnames.value;
+    var projectKeys = document.getElementById("project_keys");
+    localStorage["project_keys"] = projectKeys.value;
+    var jiraServer = document.getElementById("jira_server");
+    localStorage["jira_server"] = jiraServer.value;
+
+    // Update status to let user know options were saved.
+    var status = document.getElementById("status");
+    status.innerHTML = "Options Saved.";
+    setTimeout(function() {
+    status.innerHTML = "";
+    }, 3000);
+  }
+
+  // Restores select box state to saved value from localStorage.
+  function restore_options() {
+    var hostnamesToJirafy = localStorage["hostnames_to_jirafy"];
+    if (!hostnamesToJirafy) {
+      return;
+    }
+    var hostnames = document.getElementById("hostnames_to_jirafy");
+    hostnames.value = localStorage["hostnames_to_jirafy"];
+    var projectKeys = document.getElementById("project_keys");
+    projectKeys.value = localStorage["project_keys"];
+    var jiraServer = document.getElementById("jira_server");
+    jiraServer.value = localStorage["jira_server"];
+  }
+</script>
+<body onload="restore_options()">
+Hostnames of pages to linkify (comma-separated):
+<input type="text" name="hostnames_to_jirafy" id="hostnames_to_jirafy"/>
+<br>
+Project keys to linkify (comma-separated):
+<input type="text" name="project_keys" id="project_keys"/>
+<br>
+JIRA server url:
+<input type="text" name="jira_server" id="jira_server"/>
+<br>
+<button onclick="save_options()">Save</button>
+<br>
+<span id="status" style="color:green"></span>
+</body>
+</html>
