@@ -43,9 +43,9 @@
       // Populate the checkboxes with the API response.
       for(var c = 0; c < data.length; c++) {
         project = data[c].key;
-        onchange = "checkProject(this, '" + project + "');";
+        onchangeF = "checkProject(this, '" + project + "');";
         isChecked = selectedProjects[project] ? ' checked' : '';
-        items.push('<input type="checkbox" onchange="' + onchange + '" class="project-checkbox" ' + isChecked + '>' + project + '<br>');
+        items.push('<input type="checkbox" onchange="' + onchangeF + '" class="project-checkbox" ' + isChecked + '>' + project + '<br>');
       }
       $("#project_checkboxes_container").replaceWith($("<div/>", {
         'class': 'my-new-list',
@@ -83,7 +83,6 @@
     return field;
   }
 </script>
-  assertThat(mockWebServer.takeRequest().getPath()).isEqualTo("/1.0/tabs/" + openTab.getId() + "?");
 <body onload="restore_options()">
 Hostnames of pages to linkify (comma-separated):
 <input type="text" name="hostnames_to_jirafy" id="hostnames_to_jirafy"/>
