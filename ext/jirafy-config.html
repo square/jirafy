@@ -8,7 +8,7 @@
 
   // Saves options to localStorage.
   function save_options() {
-    localStorage["hostnames_to_jirafy"] = $("#hostnames_to_jirafy").val();
+    localStorage["urls_to_jirafy"] = $("#urls_to_jirafy").val();
     localStorage["project_keys"] = $("#project_keys").val();
     localStorage["jira_server"] = getJiraServerValue();
 
@@ -22,11 +22,11 @@
 
   // Restores select box state to saved value from localStorage.
   function restore_options() {
-    var hostnamesToJirafy = localStorage["hostnames_to_jirafy"];
+    var hostnamesToJirafy = localStorage["urls_to_jirafy"];
     if (!hostnamesToJirafy) {
       return;
     }
-    $("#hostnames_to_jirafy").val(localStorage["hostnames_to_jirafy"]);
+    $("#urls_to_jirafy").val(localStorage["urls_to_jirafy"]);
     $("#project_keys").val(localStorage["project_keys"]);
     keys = localStorage["project_keys"].split(",");
     for (index = 0; index < keys.length; index++) {
@@ -84,11 +84,11 @@
   }
 </script>
 <body onload="restore_options()">
-Hostnames of pages to linkify (comma-separated):
-<input type="text" name="hostnames_to_jirafy" id="hostnames_to_jirafy"/>
+URLs of pages to linkify (comma-separated, can be any portion of the url.  For instance, to match any git server, use "git".  To restrict it to pull requests, use "git.squareup.com/myorg/myproject/pull".  Regexes NOT currently supported.):
+<input type="text" name="urls_to_jirafy" id="urls_to_jirafy" size="100"/>
 <br>
 Project keys to linkify (comma-separated):
-<input type="text" name="project_keys" id="project_keys" disabled="true"/>
+<input type="text" name="project_keys" id="project_keys" disabled="true" size="100"/>
 <div id="project_checkboxes_container"></div>
 <br>
 JIRA server url (https://go.squareup.com/jira/ for instance):
