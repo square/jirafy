@@ -38,7 +38,9 @@ function replaceTicketNumbersWithLinks(projectKey, jiraServer) {
 chrome.extension.sendRequest({method: "getSettings"}, function(response) {
   hostname = new String(window.location.hostname);
   if (hostname.indexOf(response.hostnames_to_jirafy) != -1) {
-    // TODO handle multiple hostnames, keys, servers
-    replaceTicketNumbersWithLinks(response.project_keys, response.jira_server);
+    keys = response.project_keys.split(",");
+    for (var index = 0; index < keys.length; index++) {
+      replaceTicketNumbersWithLinks(keys[index], response.jira_server);
+    }
   }
 });

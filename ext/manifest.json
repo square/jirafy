@@ -7,6 +7,7 @@
   "background": {
     "scripts": ["bg.js"]
   },
+  "permissions": ["http://*/", "https://*/"],
   "update_url": "https://git.squareup.com/edenman/jirafy/raw/master/updates.xml",
   "content_scripts": [
     {
