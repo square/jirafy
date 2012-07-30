@@ -3,7 +3,7 @@ jirafy
 
 ![Jirafy Logo](https://git.squareup.com/square/jirafy/raw/master/ext/icon_128.png)
 
-Chrome extension that linkifies JIRA ticket numbers on select webpages.
+Chrome extension that linkifies JIRA ticket numbers on a configurable set of webpages.
 
 installation
 =====
