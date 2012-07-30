@@ -1,101 +1,162 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <title>Jirafy Configuration</title>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="fancy-settings/source/lib/default.css">
+
+    <link rel="stylesheet" href="fancy-settings/source/css/main.css">
+    <link rel="stylesheet" href="fancy-settings/source/css/setting.css">
+    <link rel="stylesheet" href="fancy-settings/source/custom.css">
+    <script src="jquery-1.7.2.min.js"></script>
+    <script type="text/javascript">
+      var selectedProjects = []
+
+      function jiraServerChanged() {
+        $("#loadProjectKeys").show();
+        save_options();
+      }
+
+      // Saves options to localStorage.
+      function save_options() {
+        localStorage["urls_to_jirafy"] = $("#urls_to_jirafy").val();
+        localStorage["project_keys"] = $("#project_keys").val();
+        localStorage["jira_server"] = getJiraServerValue();
+      }
+
+      // Restores select box state to saved value from localStorage.
+      function restore_options() {
+        var hostnamesToJirafy = localStorage["urls_to_jirafy"];
+        if (!hostnamesToJirafy) {
+          return;
+        }
+        urlsToJirafy = $("#urls_to_jirafy");
+        urlsToJirafy.val(localStorage["urls_to_jirafy"]);
+
+        projectKeys = $("#project_keys");
+        projectKeys.val(localStorage["project_keys"]);
+
+        keys = localStorage["project_keys"].split(",");
+        for (index = 0; index < keys.length; index++) {
+          selectedProjects[keys[index]] = true;
+        }
+        jiraServer = $("#jira_server");
+        jiraServer.val(localStorage["jira_server"]);
+
+        setRealOnChange(urlsToJirafy, save_options);
+        setRealOnChange(projectKeys, save_options);
+        setRealOnChange(jiraServer, jiraServerChanged);
+      }
+
+      function setRealOnChange(field, onChangeMethod) {
+        (function () {
+          var oldVal;
+          field.bind('change keypress paste focus textInput input', function () {
+            var val = this.value;
+            if (val !== oldVal) {
+              oldVal = val;
+              onChangeMethod();
+            }
+          });
+        }());
+      }
+
+      // Load the JIRA project keys from the specified server.
+      function loadJiraProjectKeys() {
+        $("#loadProjectKeys").hide();
+        $.getJSON(getJiraServerValue() + "rest/api/2/project", function(data) {
+          var items = [];
+          // Populate the checkboxes with the API response.
+          for(var c = 0; c < data.length; c++) {
+            project = data[c].key;
+            onchangeF = "checkProject(this, '" + project + "');";
+            isChecked = selectedProjects[project] ? ' checked' : '';
+            items.push('<input type="checkbox" onchange="' + onchangeF + '" class="project-checkbox" ' + isChecked + '>' + project + '<br>');
+          }
+          $("#project_checkboxes_container").replaceWith($("<div/>", {
+            'class': 'project-keys-list',
+            html: items.join('')
+          }))
+        });
+      }
+
+      // Called when one of the checkboxes is checked.
+      function checkProject(input, value) {
+        if (input.checked) {
+          selectedProjects[value] = true;
+        } else {
+          selectedProjects[value] = false;
+        }
+        var projectStr = "";
+        var first = true;
+        for(project in selectedProjects) {
+          if (selectedProjects[project]) {
+            if (!first && projectStr.length > 0) projectStr += ",";
+            projectStr += project;
+          }
+          first = false;
+        }
+        $("#project_keys").val(projectStr);
+      }
+
+      // Safely parse the value of the jira server field, adding a trailing slash if there isn't one.
+      function getJiraServerValue() {
+        field = $("#jira_server").val()
+        if (!field) return "";
+        if (!field.match("/$")) {
+          field = field + "/";
+        }
+        return field;
+      }
+    </script>
   </head>
-<script src="jquery-1.7.2.min.js"></script>
-<script type="text/javascript">
-  var selectedProjects = []
+  <body class="no-select" onload="restore_options()">
+    <div id="sidebar" class="fancy">
+      <img id="icon" src="icon_128.png"/>
+      <h1 id="settings-label">Jirafy</h1>
+      <div id="tab-container">
+        <div id="search-tab" class="tab">Linkify JIRA ticket numbers. Anywhere.</div>
+      </div>
+    </div>
 
-  // Saves options to localStorage.
-  function save_options() {
-    localStorage["urls_to_jirafy"] = $("#urls_to_jirafy").val();
-    localStorage["project_keys"] = $("#project_keys").val();
-    localStorage["jira_server"] = getJiraServerValue();
-
-    // Update status to let user know options were saved.
-    var status = document.getElementById("status");
-    status.innerHTML = "Options Saved.";
-    setTimeout(function() {
-    status.innerHTML = "";
-    }, 3000);
-  }
-
-  // Restores select box state to saved value from localStorage.
-  function restore_options() {
-    var hostnamesToJirafy = localStorage["urls_to_jirafy"];
-    if (!hostnamesToJirafy) {
-      return;
-    }
-    $("#urls_to_jirafy").val(localStorage["urls_to_jirafy"]);
-    $("#project_keys").val(localStorage["project_keys"]);
-    keys = localStorage["project_keys"].split(",");
-    for (index = 0; index < keys.length; index++) {
-      selectedProjects[keys[index]] = true;
-    }
-    $("#jira_server").val(localStorage["jira_server"]);
-  }
-
-  // Load the JIRA project keys from the specified server.
-  function loadJiraProjectKeys() {
-    $("#loadProjectKeys").hide(); // TODO on field changes, re-show this link.
-    $.getJSON(getJiraServerValue() + "rest/api/2/project", function(data) {
-      var items = [];
-      // Populate the checkboxes with the API response.
-      for(var c = 0; c < data.length; c++) {
-        project = data[c].key;
-        onchangeF = "checkProject(this, '" + project + "');";
-        isChecked = selectedProjects[project] ? ' checked' : '';
-        items.push('<input type="checkbox" onchange="' + onchangeF + '" class="project-checkbox" ' + isChecked + '>' + project + '<br>');
-      }
-      $("#project_checkboxes_container").replaceWith($("<div/>", {
-        'class': 'my-new-list',
-        html: items.join('')
-      }))
-    });
-  }
-
-  // Called when one of the checkboxes is checked.
-  function checkProject(input, value) {
-    if (input.checked) {
-      selectedProjects[value] = true;
-    } else {
-      selectedProjects[value] = false;
-    }
-    var projectStr = "";
-    var first = true;
-    for(project in selectedProjects) {
-      if (selectedProjects[project]) {
-        if (!first && projectStr.length > 0) projectStr += ",";
-        projectStr += project;
-      }
-      first = false;
-    }
-    $("#project_keys").val(projectStr);
-  }
-
-  // Safely parse the value of the jira server field, adding a trailing slash if there isn't one.
-  function getJiraServerValue() {
-    field = $("#jira_server").val()
-    if (!field) return "";
-    if (!field.match("/$")) {
-      field = field + "/";
-    }
-    return field;
-  }
-</script>
-<body onload="restore_options()">
-URLs of pages to linkify (comma-separated, can be any portion of the url.  For instance, to match any git server, use "git".  To restrict it to pull requests, use "git.squareup.com/myorg/myproject/pull".  Regexes NOT currently supported.):
-<input type="text" name="urls_to_jirafy" id="urls_to_jirafy" size="100"/>
-<br>
-Project keys to linkify (comma-separated):
-<input type="text" name="project_keys" id="project_keys" disabled="true" size="100"/>
-<div id="project_checkboxes_container"></div>
-<br>
-JIRA server url (https://go.squareup.com/jira/ for instance):
-<input type="text" name="jira_server" id="jira_server" value="https://go.squareup.com/jira/"/> <a id="loadProjectKeys" onclick="loadJiraProjectKeys()">Detect Projects</a>
-<br>
-<button onclick="save_options()">Save</button>
-<br>
-<span id="status" style="color:green"></span>
-</body>
+    <div id="content">
+      <div class="tab-content show">
+        <h2>Settings</h2>
+        <table class="setting group">
+          <tr>
+            <td class="setting group-name">Pages</td>
+            <td class="setting group-content">
+              <div class="setting bundle text">
+                <div class="setting container text">
+                  <label class="setting label text" for="urls_to_jirafy">URL Patterns:</label>
+                  <input class="setting element text" type="text" name="urls_to_jirafy" id="urls_to_jirafy" size="100"/>
+                </div>
+              </div>
+              <div class="setting bundle description">
+                Comma-separated, can be any portion of the url.  For instance, to match any git server, use "git".  To restrict it to pull requests, use "git.squareup.com/myorg/myproject/pull".  Regexes NOT currently supported.
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="setting group-name">JIRA </td>
+            <td class="setting group-content">
+              <div class="setting bundle text">
+                <div class="setting container text">
+                  <label class="setting label text" for="project_keys">Project Keys:</label>
+                  <input type="text" name="project_keys" id="project_keys" size="100"/>
+                  <div id="project_checkboxes_container"></div>
+                </div>
+                <div class="setting container text">
+                  <label class="setting label text" for="jira_server">JIRA Server:</label>
+                  <input type="text" name="jira_server" id="jira_server" value="https://go.squareup.com/jira/"/> <a id="loadProjectKeys" onclick="loadJiraProjectKeys()">Detect Projects</a>
+                </div>
+              </div>
+              <div class="setting bundle description">
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
 </html>
