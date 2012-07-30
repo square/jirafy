@@ -30,7 +30,7 @@
         projectKeys = $("#project_keys");
         jiraServer = $("#jira_server");
         setRealOnChange(urlsToJirafy, save_options);
-        setRealOnChange(projectKeys, save_options);
+        setRealOnChange(projectKeys, projectKeysChanged);
         setRealOnChange(jiraServer, jiraServerChanged);
 
         var hostnamesToJirafy = localStorage["urls_to_jirafy"];
@@ -65,7 +65,7 @@
       function loadJiraProjectKeys() {
         $("#loadProjectKeys").hide();
         $.getJSON(getJiraServerValue() + "rest/api/2/project", function(data) {
-          if (data.length == 0) {
+          if (data.length === 0) {
             alert("No results returned from that JIRA server.  Is the URL correct?  Are you logged in?  Is the API enabled?");
             $("#loadProjectKeys").show();
           }
@@ -75,13 +75,30 @@
             project = data[c].key;
             onchangeF = "checkProject(this, '" + project + "');";
             isChecked = selectedProjects[project] ? ' checked' : '';
-            items.push('<input type="checkbox" onchange="' + onchangeF + '" class="project-checkbox" ' + isChecked + '>' + project + '<br>');
+            items.push('<input type="checkbox" onchange="' + onchangeF + '" value="' + project + '" class="project-checkbox" ' + isChecked + '>' + project + '<br>');
           }
           $("#project_checkboxes_container").replaceWith($("<div/>", {
+            'id': 'project_checkboxes_container',
             'class': 'project-keys-list',
             html: items.join('')
           }))
         });
+      }
+
+      // Do a reverse lookup on the checkboxes populated from JIRA and update checkbox state based
+      // on what I'm typing in the field.
+      function projectKeysChanged() {
+        selectedProjects = [];
+        keys = $("#project_keys").val().split(",");
+        for (index = 0; index < keys.length; index++) {
+          selectedProjects[keys[index]] = true;
+        }
+        $("#project_checkboxes_container").children().each(function() {
+          var kid = $(this);
+          kid.attr("checked", typeof selectedProjects[kid.val()] !== 'undefined');
+        });
+        // Now save whatever I typed in.
+        save_options();
       }
 
       // Called when one of the checkboxes is checked.
