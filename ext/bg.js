@@ -1,5 +1,6 @@
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    if (request.method == "getSettings") {
+    if (request.method == "getSettings"
+        && matchesAnyUrlPatterns(sender.tab.url, localStorage['urls_to_jirafy'])) {
       sendResponse({
         urls_to_jirafy: localStorage['urls_to_jirafy'],
         project_keys: localStorage['project_keys'],
@@ -10,6 +11,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     }
 });
 
+// Kick to the config page the first time this extension is installed.
 function install_notice() {
   if (localStorage.getItem('install_time'))
     return;
@@ -27,8 +29,7 @@ function checkForValidUrl(tabId, changeInfo, tab) {
   }
 };
 
-// GROSS: couldn't figure out how to share this code between jirafy.js and here, so copied it.
-// TODO TODO TODO remove duplicate code.  message passing?
+// Check to see if the url should have its content jirafied.
 function matchesAnyUrlPatterns(url, urls_to_jirafy) {
   urls = urls_to_jirafy.split(",");
   for(var c = 0; c < urls.length; c++) {
