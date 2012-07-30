@@ -4,6 +4,6 @@
     <!-- Since this relies on the jirafy.crx file, make sure any change to the version number of
          the extension is accompanied by a new .crx file and a version# bump in manifest.xml. -->
     <updatecheck codebase='https://git.squareup.com/square/jirafy/raw/master/jirafy.crx'
-        version='0.1' />
+        version='0.2' />
   </app>
 </gupdate>

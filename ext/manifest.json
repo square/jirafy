@@ -1,13 +1,21 @@
 {
   "name": "Jirafy",
-  "version": "0.1",
+  "version": "0.2",
   "dummy-comment": "IF YOU CHANGE THE VERSION, CHANGE IT IN updates.xml TOO",
   "description": "Linkifies JIRA ticket numbers on select pages.  Click the 'Options' link to configure which pages to parse and which JIRA projects should be linked.",
-  "icons": { "128": "icon_128.png" },
+  "icons": {
+    "128": "icon_128.png",
+    "48": "icon_48.png",
+    "16": "icon_16.png"
+  },
   "background": {
     "scripts": ["bg.js"]
   },
-  "permissions": ["http://*/", "https://*/"],
+  "page_action": {
+    "default_icon": "icon_16.png",
+    "default_title": "View Jirafy settings."
+  },
+  "permissions": ["http://*/", "https://*/", "tabs"],
   "update_url": "https://git.squareup.com/square/jirafy/raw/master/updates.xml",
   "content_scripts": [
     {
