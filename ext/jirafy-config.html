@@ -26,26 +26,26 @@
 
       // Restores select box state to saved value from localStorage.
       function restore_options() {
+        urlsToJirafy = $("#urls_to_jirafy");
+        projectKeys = $("#project_keys");
+        jiraServer = $("#jira_server");
+        setRealOnChange(urlsToJirafy, save_options);
+        setRealOnChange(projectKeys, save_options);
+        setRealOnChange(jiraServer, jiraServerChanged);
+
         var hostnamesToJirafy = localStorage["urls_to_jirafy"];
         if (!hostnamesToJirafy) {
           return;
         }
-        urlsToJirafy = $("#urls_to_jirafy");
         urlsToJirafy.val(localStorage["urls_to_jirafy"]);
 
-        projectKeys = $("#project_keys");
         projectKeys.val(localStorage["project_keys"]);
 
         keys = localStorage["project_keys"].split(",");
         for (index = 0; index < keys.length; index++) {
           selectedProjects[keys[index]] = true;
         }
-        jiraServer = $("#jira_server");
         jiraServer.val(localStorage["jira_server"]);
-
-        setRealOnChange(urlsToJirafy, save_options);
-        setRealOnChange(projectKeys, save_options);
-        setRealOnChange(jiraServer, jiraServerChanged);
       }
 
       function setRealOnChange(field, onChangeMethod) {
