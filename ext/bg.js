@@ -10,3 +10,13 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
       sendResponse({}); // snub them.
     }
 });
+
+function install_notice() {
+  if (localStorage.getItem('install_time'))
+    return;
+
+  var now = new Date().getTime();
+  localStorage.setItem('install_time', now);
+  chrome.tabs.create({url: "jirafy-config.html"});
+}
+install_notice();
