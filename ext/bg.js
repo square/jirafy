@@ -27,6 +27,8 @@ function checkForValidUrl(tabId, changeInfo, tab) {
   }
 };
 
+// GROSS: couldn't figure out how to share this code between jirafy.js and here, so copied it.
+// TODO TODO TODO remove duplicate code.  message passing?
 function matchesAnyUrlPatterns(url, urls_to_jirafy) {
   urls = urls_to_jirafy.split(",");
   for(var c = 0; c < urls.length; c++) {
