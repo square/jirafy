@@ -36,14 +36,6 @@ function replaceTicketNumbersWithLinks(projectKeys, jiraServer) {
     });
 }
 
-function matchesAnyUrlPatterns(url, urls_to_jirafy) {
-  urls = urls_to_jirafy.split(",");
-  for(var c = 0; c < urls.length; c++) {
-    if (url.indexOf(urls[c]) != -1) return true;
-  }
-  return false;
-}
-
 chrome.extension.sendRequest({method: "getSettings"}, function(response) {
   url = new String(window.location);
   if (matchesAnyUrlPatterns(url, response.urls_to_jirafy)) {
