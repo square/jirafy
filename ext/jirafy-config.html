@@ -65,6 +65,10 @@
       function loadJiraProjectKeys() {
         $("#loadProjectKeys").hide();
         $.getJSON(getJiraServerValue() + "rest/api/2/project", function(data) {
+          if (data.length == 0) {
+            alert("No results returned from that JIRA server.  Is the URL correct?  Are you logged in?  Is the API enabled?");
+            $("#loadProjectKeys").show();
+          }
           var items = [];
           // Populate the checkboxes with the API response.
           for(var c = 0; c < data.length; c++) {
