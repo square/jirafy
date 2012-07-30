@@ -14,4 +14,4 @@ Click the "Options" link to configure the plugin
 installation for regular users
 =====
 
-Go to this link: https://git.squareup.com/edenman/jirafy/raw/master/jirafy.crx
+Go to this link: https://git.squareup.com/square/jirafy/raw/master/jirafy.crx

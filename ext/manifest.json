@@ -8,7 +8,7 @@
     "scripts": ["bg.js"]
   },
   "permissions": ["http://*/", "https://*/"],
-  "update_url": "https://git.squareup.com/edenman/jirafy/raw/master/updates.xml",
+  "update_url": "https://git.squareup.com/square/jirafy/raw/master/updates.xml",
   "content_scripts": [
     {
       "matches": [
