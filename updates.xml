@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
-  <app appid='ljfncalglmpoacjciiocmigjmpoocgcg'>
+  <app appid='fdmogkdcmnkmloofofapekbgjckdckjh'>
     <!-- Since this relies on the jirafy.crx file, make sure any change to the version number of
          the extension is accompanied by a new .crx file and a version# bump in manifest.xml. -->
     <updatecheck codebase='https://git.squareup.com/square/jirafy/raw/master/jirafy.crx'
