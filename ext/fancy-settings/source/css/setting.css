@@ -31,6 +31,10 @@
     margin-bottom: 5px;
 }
 
+.setting.bundle.description {
+    color: #707070;
+}
+
 .setting.bundle.list-box {
     margin-bottom: 10px;
 }

@@ -150,7 +150,7 @@
               <div class="setting bundle text">
                 <div class="setting container text">
                   <label class="setting label text" for="urls_to_jirafy">URL Patterns:</label>
-                  <input class="setting element text" type="text" name="urls_to_jirafy" id="urls_to_jirafy" size="100"/>
+                  <input class="setting element text" type="text" name="urls_to_jirafy" id="urls_to_jirafy" size="100" placeholder="git"/>
                 </div>
               </div>
               <div class="setting bundle description">
@@ -164,12 +164,16 @@
               <div class="setting bundle text">
                 <div class="setting container text">
                   <label class="setting label text" for="project_keys">Project Keys:</label>
-                  <input type="text" name="project_keys" id="project_keys" size="100"/>
+                  <input type="text" name="project_keys" id="project_keys" size="100" placeholder="ANDROID,IOS"/>
                   <div id="project_checkboxes_container"></div>
                 </div>
-                <div class="setting container text">
+              </div>
+              <div class="setting bundle description">
+                Comma-separated project keys that you care about.  You can use the "Detect Projects" link below to query your JIRA instance and load its projects.  The resulting checkboxes will then populate this field.
+              </div>
+              <div class="setting container text">
                   <label class="setting label text" for="jira_server">JIRA Server:</label>
-                  <input type="text" name="jira_server" id="jira_server" value="https://go.squareup.com/jira/"/> <a id="loadProjectKeys" onclick="loadJiraProjectKeys()">Detect Projects</a>
+                  <input type="text" name="jira_server" id="jira_server" placeholder="https://go.squareup.com/jira/"/> <a id="loadProjectKeys" onclick="loadJiraProjectKeys()">Detect Projects</a>
                 </div>
               </div>
               <div class="setting bundle description">
