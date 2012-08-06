@@ -1,5 +1,5 @@
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    if (request.method == "getSettings"
+    if (request.method == "getJirafySettings"
         && matchesAnyUrlPatterns(sender.tab.url, localStorage['urls_to_jirafy'])) {
       sendResponse({
         urls_to_jirafy: localStorage['urls_to_jirafy'],
