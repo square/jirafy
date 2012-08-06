@@ -1,5 +1,4 @@
 function replaceTicketNumbersWithLinks(projectKeys, jiraServer) {
-  console.log("Replacing ticket numbers");
   regexes = []
   for(var c = 0; c < projectKeys.length; c++) {
     regexes[c] = new RegExp("(browse/)?(" + projectKeys[c] + "-[0-9]+)", "g");
