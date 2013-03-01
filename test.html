@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Jirafy Tests</title>
+    <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.11.0.css">
+    <script src="http://code.jquery.com/qunit/qunit-1.11.0.js"></script>
+    <script>
+      // Stub out chrome extension call.
+      var chrome = {
+        extension: {
+          sendRequest: function() {}
+        }
+      }
+    </script>
+    <script src="ext/jirafy.js"></script>
+    <script>
+      function assertNodes() {
+        var nodes = arguments[0];
+        for (var i = 1, len = arguments.length; i < len; i++) {
+          if (i - 1 < nodes.length) {
+            equal(nodes[i - 1].nodeValue, arguments[i], 'Node: ' + arguments[i]);
+          } else {
+            ok(false, 'No node for ' + arguments[i]);
+          }
+        }
+      }
+      function id(value) {
+        return document.getElementById(value);
+      }
+
+      var regexFoo = getRegexes(['FOO']);
+      var regexFooBar = getRegexes(['FOO', 'BAR']);
+
+      test('Multiple JIRA issues in a row', function() {
+        var node = id('multiple-in-a-row');
+        var nodes = getTicketNodes(node, regexFoo);
+        assertNodes(nodes, 'FOO-4', 'FOO-8', 'FOO-15');
+      });
+
+      test('No matches inside <a>', function() {
+        var node = id('no-matches-in-anchor');
+        var nodes = getTicketNodes(node, regexFoo);
+        equal(nodes.length, 0, 'No nodes found');
+      });
+
+      test('No matches inside <textarea>', function() {
+        var node = id('no-matches-in-textarea');
+        var nodes = getTicketNodes(node, regexFoo);
+        equal(nodes.length, 0, 'No nodes found');
+      });
+
+      test('Multiple project keys', function() {
+        var node = id('multiple-project-keys');
+        var nodes = getTicketNodes(node, regexFooBar);
+        assertNodes(nodes, 'FOO-4', 'BAR-8');
+      });
+
+      test('No match across elements', function() {
+        var node = id('no-match-across-elements');
+        var nodes = getTicketNodes(node, regexFoo);
+        equal(nodes.length, 0, 'No nodes found');
+      });
+
+      test('Simple anchor insertion', function() {
+        var node = id('simple-insertion');
+        equal(node.innerHTML, 'FOO-4', 'Ticket without link');
+        var nodes = getTicketNodes(node, regexFoo);
+        assertNodes(nodes, 'FOO-4');
+        replaceNodes(regexFoo, nodes, 'http://example.com');
+        equal(node.innerHTML, '<span><a href="http://example.com/browse/FOO-4">FOO-4</a></span>');
+      });
+
+      test('Multiple anchor insertion', function() {
+        var node = id('multiple-insertion');
+        equal(node.innerHTML, 'Beer me FOO-23 and BAR-42 issues.', 'Tickets without links');
+        var nodes = getTicketNodes(node, regexFooBar);
+        assertNodes(nodes, 'Beer me FOO-23 and BAR-42 issues.');
+        replaceNodes(regexFooBar, nodes, 'http://example.com');
+        equal(node.innerHTML, '<span>Beer me <a href=\"http://example.com/browse/FOO-23\">FOO-23</a> and <a href=\"http://example.com/browse/BAR-42\">BAR-42</a> issues.</span>');
+      });
+
+      test('Match only given projects', function() {
+        var node = id('match-only-foo');
+        var nodes = getTicketNodes(node, regexFoo);
+        assertNodes(nodes, 'FOO-15');
+      });
+
+      test('Do not link a full link', function() {
+        var node = id('do-not-link-full-link');
+        equal(node.innerHTML, 'http://example.com/jira/browse/FOO-108');
+        var nodes = getTicketNodes(node, regexFoo);
+        assertNodes(nodes, 'http://example.com/jira/browse/FOO-108');
+        replaceNodes(regexFoo, nodes, 'http://example.com');
+        equal(node.innerHTML, 'http://example.com/jira/browse/FOO-108');
+      });
+    </script>
+  </head>
+  <body>
+    <div id="qunit"></div>
+
+    <div id="qunit-fixture">
+      <p id="multiple-in-a-row">FOO-4<br>FOO-8<br>FOO-15</p>
+      <p id="no-matches-in-anchor"><a href="http://example.com/jira/browse/FOO-108">FOO-108</a></p>
+      <p id="no-matches-in-textarea"><textarea>FOO-108</textarea></p>
+      <div id="multiple-project-keys"><p>FOO-4</p><p>BAR-8</p></div>
+      <p id="no-match-across-elements"><span>FO</span>O-108</p>
+      <p id="simple-insertion">FOO-4</p>
+      <p id="multiple-insertion">Beer me FOO-23 and BAR-42 issues.</p>
+      <p id="match-only-foo">FOO-15<br>BAR-16<br>PING-23<br>PONG-42</p>
+      <p id="do-not-link-full-link">http://example.com/jira/browse/FOO-108</p>
+    </div>
+  </body>
+</html>

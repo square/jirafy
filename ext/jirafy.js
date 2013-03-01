@@ -1,14 +1,17 @@
 function replaceTicketNumbersWithLinks(projectKeys, jiraServer) {
-  regexes = []
-  for(var c = 0; c < projectKeys.length; c++) {
-    regexes[c] = new RegExp("(browse/)?(" + projectKeys[c] + "-[0-9]+)", "g");
-  }
+  var regexes = getRegexes(projectKeys);
+  var nodes = getTicketNodes(document.getElementsByTagName('body')[0], regexes);
+  replaceNodes(regexes, nodes, jiraServer);
+}
 
-  var ticketNodes = getTicketNodes($("body")[0], regexes);
-  for (var i = 0; i < ticketNodes.length; i++) {
-    node = ticketNodes[i];
-    newVal = node.nodeValue;
-    for(var c = 0; c < regexes.length; c++) {
+function replaceNodes(regexes, nodes, jiraServer) {
+  if (jiraServer.substr(jiraServer.length - 1) !== '/') {
+    jiraServer += '/';
+  }
+  for (var i = 0, nodeCount = nodes.length; i < nodeCount; i++) {
+    var node = nodes[i];
+    var newVal = node.nodeValue;
+    for(var c = 0, regexCount = regexes.length; c < regexCount; c++) {
       newVal = newVal.replace(regexes[c],
                                function(matched, hasBrowsePrefix, ticket) {
                                  // Only linkify ticket numbers if they are _not_ prefixed with "browse/".  We could
@@ -20,43 +23,55 @@ function replaceTicketNumbersWithLinks(projectKeys, jiraServer) {
                                }
                              );
     }
-    // We can't just do node.innerHTML = newVal because text nodes don't have an innerHTML property,
-    // so instead we replace the textnode with a new span containing the new html.
-    wrapper = document.createElement("span");
-    wrapper.innerHTML = newVal;
-    parent = node.parentNode;
-    parent.insertBefore(wrapper, node);
-    parent.removeChild(node);
+    if (newVal !== node.nodeValue) {
+      // We can't just do node.innerHTML = newVal because text nodes don't have an innerHTML property,
+      // so instead we replace the textnode with a new span containing the new html.
+      var wrapper = document.createElement("span");
+      wrapper.innerHTML = newVal;
+      var parent = node.parentNode;
+      parent.insertBefore(wrapper, node);
+      parent.removeChild(node);
+    }
   }
+}
+
+function getRegexes(projectKeys) {
+  var regexes = []
+  for(var c = 0, len = projectKeys.length; c < len; c++) {
+    regexes[c] = new RegExp("(browse/)?(" + projectKeys[c] + "-\\d+)");
+  }
+  return regexes;
 }
 
 function getTicketNodes(node, regexes) {
   var textNodes = [];
 
-  function getMatchingNodes(node) {
-    var parentTag = node.parentElement.tagName;
+  var matches = function(node, regexes) {
+    var value = node.nodeValue;
+    for (var c = 0, len = regexes.length; c < len; c++) {
+      if (value.match(regexes[c])) {
+        return true;
+      }
+    }
+  };
 
-    if (node.nodeType == 3
-        && parentTag != 'A' && parentTag != 'TEXTAREA'
-        && matches(node, regexes)) {
-      textNodes.push(node);
+  var queue = [node];
+  while (queue.length > 0) {
+    var childNode = queue.shift();
+    var parentTag = childNode.parentElement.tagName;
+
+    if (childNode.nodeType === 3
+        && parentTag !== 'A' && parentTag !== 'TEXTAREA'
+        && matches(childNode, regexes)) {
+      textNodes.push(childNode);
     } else {
-      for (var i = 0, len = node.childNodes.length; i < len; ++i) {
-        getMatchingNodes(node.childNodes[i]);
+      for (var i = 0, len = childNode.childNodes.length; i < len; i++) {
+        queue.push(childNode.childNodes[i]);
       }
     }
   }
 
-  getMatchingNodes(node);
   return textNodes;
-}
-
-function matches(node, regexes) {
-  for(var c = 0; c < regexes.length; c++) {
-    if (regexes[c].exec(node.nodeValue)) {
-      return true;
-    }
-  }
 }
 
 chrome.extension.sendRequest({method: "getJirafySettings"}, function(response) {
@@ -65,4 +80,3 @@ chrome.extension.sendRequest({method: "getJirafySettings"}, function(response) {
     replaceTicketNumbersWithLinks(keys, response.jira_server);
   }
 });
-
