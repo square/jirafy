@@ -29,8 +29,8 @@
         return document.getElementById(value);
       }
 
-      var regexFoo = getRegexes(['FOO']);
-      var regexFooBar = getRegexes(['FOO', 'BAR']);
+      var regexFoo = getRegex(['FOO']);
+      var regexFooBar = getRegex(['FOO', 'BAR']);
 
       test('Multiple JIRA issues in a row', function() {
         var node = id('multiple-in-a-row');
