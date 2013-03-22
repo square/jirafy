@@ -1,7 +1,7 @@
 {
   "name": "Jirafy",
   "manifest_version": 2,
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Linkifies JIRA ticket numbers on select pages.  Click the 'Options' link to configure pages to parse and JIRA projects to link.",
   "icons": {
     "128": "icon_128.png",
