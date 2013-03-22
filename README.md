@@ -8,13 +8,6 @@ webpages.
 
 Available from [the Chrome Store][1].
 
-Because *Jirafy* is very configurable, it has to request a broad set of
-permissions.  Although it requests these broad permissions, no work is done on
-pages unless they match your configured url pattern.  Likewise, although it
-equests permission to access any external websites, this is only used so that
-jirafy can query your JIRA server's API and load all the possible project keys.
-
-
 Developing
 ----------
 
