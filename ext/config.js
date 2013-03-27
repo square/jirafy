@@ -83,7 +83,9 @@ function projectKeysChanged() {
   selectedProjects = [];
   keys = $("#project_keys").val().split(",");
   for (index = 0; index < keys.length; index++) {
-    selectedProjects[keys[index]] = true;
+    if (keys[index]) { // Don't add empty keys if they type in "ANDROID,,"
+      selectedProjects[keys[index]] = true;
+    }
   }
   $("#project_checkboxes_container").children().each(function() {
     var kid = $(this);
