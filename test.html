@@ -68,7 +68,7 @@
         var nodes = getTicketNodes(node, regexFoo);
         assertNodes(nodes, 'FOO-4');
         replaceNodes(regexFoo, nodes, 'http://example.com');
-        equal(node.innerHTML, '<span><a href="http://example.com/browse/FOO-4">FOO-4</a></span>');
+        equal(node.innerHTML, '<span><a href="http://example.com/browse/FOO-4" target="_blank">FOO-4</a></span>');
       });
 
       test('Multiple anchor insertion', function() {
@@ -77,7 +77,7 @@
         var nodes = getTicketNodes(node, regexFooBar);
         assertNodes(nodes, 'Beer me FOO-23 and BAR-42 issues.');
         replaceNodes(regexFooBar, nodes, 'http://example.com');
-        equal(node.innerHTML, '<span>Beer me <a href=\"http://example.com/browse/FOO-23\">FOO-23</a> and <a href=\"http://example.com/browse/BAR-42\">BAR-42</a> issues.</span>');
+        equal(node.innerHTML, '<span>Beer me <a href=\"http://example.com/browse/FOO-23\" target="_blank">FOO-23</a> and <a href=\"http://example.com/browse/BAR-42\" target="_blank">BAR-42</a> issues.</span>');
       });
 
       test('Match only given projects', function() {
