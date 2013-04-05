@@ -17,7 +17,7 @@ function replaceNodes(regex, nodes, jiraServer) {
                                // use a negative lookbehind regex, but javascript doesn't support them
                                replaceVal = hasBrowsePrefix ?
                                  matched : // This one has a browse prefix: don't replace anything.
-                                 "<a href=\"" + jiraServer + "browse/" + ticket + "\">" + ticket + "</a>";
+                                 "<a href=\"" + jiraServer + "browse/" + ticket + "\" target='_blank'>" + ticket + "</a>";
                                return replaceVal;
                              }
                            );
