@@ -1,6 +1,6 @@
-function replaceTicketNumbersWithLinks(projectKeys, jiraServer) {
+function replaceTicketNumbersWithLinks(projectKeys, jiraServer, urlToJirafy) {
   var regex = getRegex(projectKeys);
-  var nodes = getTicketNodes(document.getElementsByTagName('body')[0], regex);
+  var nodes = getTicketNodes(document.getElementsByTagName('body')[0], regex, urlToJirafy);
   replaceNodes(regex, nodes, jiraServer);
 }
 
@@ -37,8 +37,12 @@ function getRegex(projectKeys) {
   return new RegExp("(browse/)?((" + projectKeys.join('|') + ")-\\d+)","g");
 }
 
-function getTicketNodes(node, regex) {
-  var textNodes = [];
+function getTicketNodes(node, regex, urlToJirafy) {
+  var textNodes = [],
+    isGitHubUrl = (urlToJirafy.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[1] === "github.com")
+      ? true
+      : false;
+
 
   var queue = [node];
   while (queue.length > 0) {
@@ -51,7 +55,20 @@ function getTicketNodes(node, regex) {
       textNodes.push(childNode);
     } else {
       for (var i = 0, len = childNode.childNodes.length; i < len; i++) {
-        queue.push(childNode.childNodes[i]);
+        if( !(isGitHubUrl
+            && ( childNode.parentElement.className.indexOf("js-details-container") != -1
+              || childNode.parentElement.className.indexOf("js-blob-data") != -1 )
+            && ( childNode.childNodes[i].nodeName === "TABLE"
+              || childNode.childNodes[i].nodeName === "TBODY"
+              || childNode.childNodes[i].nodeName === "THEAD"
+              || childNode.childNodes[i].nodeName === "TR"
+              || childNode.childNodes[i].nodeName === "TD" )
+            )
+        )  {
+          queue.push(childNode.childNodes[i]);
+        }else {
+          console.log(childNode.childNodes[i])
+        }
       }
     }
   }
@@ -62,6 +79,6 @@ function getTicketNodes(node, regex) {
 chrome.extension.sendRequest({method: "getJirafySettings"}, function(response) {
   if (response.project_keys && response.jira_server) {
     keys = response.project_keys.split(",");
-    replaceTicketNumbersWithLinks(keys, response.jira_server);
+    replaceTicketNumbersWithLinks(keys, response.jira_server, response.urls_to_jirafy);
   }
 });
