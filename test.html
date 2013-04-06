@@ -29,69 +29,98 @@
         return document.getElementById(value);
       }
 
-      var regexFoo = getRegex(['FOO']);
-      var regexFooBar = getRegex(['FOO', 'BAR']);
+      var regexFoo = getRegex(['FOO']),
+        regexFooBar = getRegex(['FOO', 'BAR']),
+        ignore = ['a', 'textarea', 'pre', 'code'];
 
       test('Multiple JIRA issues in a row', function() {
         var node = id('multiple-in-a-row');
-        var nodes = getTicketNodes(node, regexFoo);
-        assertNodes(nodes, 'FOO-4', 'FOO-8', 'FOO-15');
+        getMatches(node, regexFoo, function(node, ticket, offset) {
+          if(['FOO-4', 'FOO-8', 'FOO-15'].indexOf(ticket) > -1) {
+            equal(ticket, ticket, 'Node: ' + node);
+          }else {
+            ok(false, 'No node for ' + node);
+          }
+        }, ignore);
       });
 
       test('No matches inside <a>', function() {
         var node = id('no-matches-in-anchor');
-        var nodes = getTicketNodes(node, regexFoo);
-        equal(nodes.length, 0, 'No nodes found');
+        getMatches(node, regexFoo, function(node, ticket, offset) {
+          ok(false, 'Node found: ' + node);
+        }, ignore);
+
+        equal(true, true, 'No nodes found');
       });
 
       test('No matches inside <textarea>', function() {
         var node = id('no-matches-in-textarea');
-        var nodes = getTicketNodes(node, regexFoo);
-        equal(nodes.length, 0, 'No nodes found');
+        getMatches(node, regexFoo, function(node, ticket, offset) {
+          ok(false, 'Node found: ' + node);
+        }, ignore);
+
+        equal(true, true, 'No nodes found');
       });
 
       test('Multiple project keys', function() {
         var node = id('multiple-project-keys');
-        var nodes = getTicketNodes(node, regexFooBar);
-        assertNodes(nodes, 'FOO-4', 'BAR-8');
+        getMatches(node, regexFooBar, function(node, ticket, offset) {
+          if(['FOO-4', 'BAR-8'].indexOf(ticket) > -1) {
+            equal(ticket, ticket, 'Node: ' + node);
+          }else {
+            ok(false, 'No node for ' + node);
+          }
+        }, ignore);
       });
 
       test('No match across elements', function() {
         var node = id('no-match-across-elements');
-        var nodes = getTicketNodes(node, regexFoo);
-        equal(nodes.length, 0, 'No nodes found');
+        getMatches(node, regexFoo, function(node, ticket, offset) {
+          ok(false, 'Node found: ' + node);
+        }, ignore);
+
+        equal(true, true, 'No nodes found');
       });
 
       test('Simple anchor insertion', function() {
         var node = id('simple-insertion');
         equal(node.innerHTML, 'FOO-4', 'Ticket without link');
-        var nodes = getTicketNodes(node, regexFoo);
-        assertNodes(nodes, 'FOO-4');
-        replaceNodes(regexFoo, nodes, 'http://example.com');
-        equal(node.innerHTML, '<span><a href="http://example.com/browse/FOO-4">FOO-4</a></span>');
+
+        replaceTicketNumbersWithLinks(['FOO'], 'http://example.com', 'false', [], node)
+
+        equal(node.innerHTML, '<a href="http://example.com/browse/FOO-4">FOO-4</a>');
+      });
+
+      test('Simple anchor insertion open in new window', function() {
+        var node = id('simple-insertion');
+        equal(node.innerHTML, 'FOO-4', 'Ticket without link');
+
+        replaceTicketNumbersWithLinks(['FOO'], 'http://example.com', 'true', [], node)
+
+        equal(node.innerHTML, '<a href="http://example.com/browse/FOO-4" target="_blank">FOO-4</a>');
       });
 
       test('Multiple anchor insertion', function() {
         var node = id('multiple-insertion');
         equal(node.innerHTML, 'Beer me FOO-23 and BAR-42 issues.', 'Tickets without links');
-        var nodes = getTicketNodes(node, regexFooBar);
-        assertNodes(nodes, 'Beer me FOO-23 and BAR-42 issues.');
-        replaceNodes(regexFooBar, nodes, 'http://example.com');
-        equal(node.innerHTML, '<span>Beer me <a href=\"http://example.com/browse/FOO-23\">FOO-23</a> and <a href=\"http://example.com/browse/BAR-42\">BAR-42</a> issues.</span>');
+        replaceTicketNumbersWithLinks(['FOO', ['BAR']], 'http://example.com', 'false', [], node)
+
+        equal(node.innerHTML, 'Beer me <a href=\"http://example.com/browse/FOO-23\">FOO-23</a> and <a href=\"http://example.com/browse/BAR-42\">BAR-42</a> issues.');
       });
 
       test('Match only given projects', function() {
         var node = id('match-only-foo');
-        var nodes = getTicketNodes(node, regexFoo);
-        assertNodes(nodes, 'FOO-15');
+        getMatches(node, regexFoo, function(node, ticket, offset) {
+          equal(ticket, 'FOO-15', 'Found only FOO-15');
+        }, ignore);
       });
 
       test('Do not link a full link', function() {
         var node = id('do-not-link-full-link');
         equal(node.innerHTML, 'http://example.com/jira/browse/FOO-108');
-        var nodes = getTicketNodes(node, regexFoo);
-        assertNodes(nodes, 'http://example.com/jira/browse/FOO-108');
-        replaceNodes(regexFoo, nodes, 'http://example.com');
+        getMatches(node, regexFoo, function(node, ticket, offset) {
+          ok(false, 'Node found: ' + node);
+        }, ignore);
         equal(node.innerHTML, 'http://example.com/jira/browse/FOO-108');
       });
     </script>
