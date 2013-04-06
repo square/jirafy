@@ -1,67 +1,73 @@
-function replaceTicketNumbersWithLinks(projectKeys, jiraServer) {
-  var regex = getRegex(projectKeys);
-  var nodes = getTicketNodes(document.getElementsByTagName('body')[0], regex);
-  replaceNodes(regex, nodes, jiraServer);
-}
+var replaceTicketNumbersWithLinks = function(projectKeys, jiraServer, newWindow, ignoreElements, startNode) {
+  var regex = getRegex(projectKeys),
+    ignore = ['a', 'textarea', 'pre', 'code'].concat(ignoreElements);
 
-function replaceNodes(regex, nodes, jiraServer) {
+  startNode = (startNode) ? startNode : document.getElementsByTagName('body')[0];
   if (jiraServer.substr(jiraServer.length - 1) !== '/') {
     jiraServer += '/';
   }
-  for (var i = 0, nodeCount = nodes.length; i < nodeCount; i++) {
-    var node = nodes[i];
-    var newVal = node.nodeValue;
-    newVal = newVal.replace(regex,
-                             function(matched, hasBrowsePrefix, ticket) {
-                               // Only linkify ticket numbers if they are _not_ prefixed with "browse/".  We could
-                               // use a negative lookbehind regex, but javascript doesn't support them
-                               replaceVal = hasBrowsePrefix ?
-                                 matched : // This one has a browse prefix: don't replace anything.
-                                 "<a href=\"" + jiraServer + "browse/" + ticket + "\">" + ticket + "</a>";
-                               return replaceVal;
-                             }
-                           );
-    if (newVal !== node.nodeValue) {
-      // We can't just do node.innerHTML = newVal because text nodes don't have an innerHTML property,
-      // so instead we replace the textnode with a new span containing the new html.
-      var wrapper = document.createElement("span");
-      wrapper.innerHTML = newVal;
-      var parent = node.parentNode;
-      parent.insertBefore(wrapper, node);
-      parent.removeChild(node);
-    }
-  }
-}
 
-function getRegex(projectKeys) {
+  getMatches(startNode, regex, function(node, ticket, offset)  {
+    var jiraLink = document.createElement("a");
+
+    jiraLink.href = jiraServer + "browse/" + ticket;
+    jiraLink.textContent = ticket;
+
+    if(newWindow == "true") {
+      jiraLink.target = "_blank";
+    }
+
+    node.parentNode.insertBefore(jiraLink, node.nextSibling);
+  }, ignore);
+};
+
+var getRegex = function (projectKeys) {
   return new RegExp("(browse/)?((" + projectKeys.join('|') + ")-\\d+)","g");
-}
+};
 
-function getTicketNodes(node, regex) {
-  var textNodes = [];
+var getMatches = function(parent, regex, callback, ignore) {
+  var node = parent.firstChild;
 
-  var queue = [node];
-  while (queue.length > 0) {
-    var childNode = queue.shift();
-    var parentTag = childNode.parentElement.tagName;
+  if(node === null) return parent;
 
-    if (childNode.nodeType === 3
-        && parentTag !== 'A' && parentTag !== 'TEXTAREA'
-        && childNode.nodeValue.match(regex)) {
-      textNodes.push(childNode);
-    } else {
-      for (var i = 0, len = childNode.childNodes.length; i < len; i++) {
-        queue.push(childNode.childNodes[i]);
+  do {
+    switch (node.nodeType) {
+      case 1:
+         if (ignore.indexOf(node.tagName.toLowerCase()) > -1) {
+             continue;
+         }
+
+         getMatches(node, regex, callback, ignore);
+         break;
+
+      case 3:
+        node.data.replace(regex, function(all) {
+          // If this one has a browse prefix: don't replace anything.
+          if(arguments[1]) return;
+
+          var args = [].slice.call(arguments),
+            //if two are found in the same node we need to use the new offset for all except the first
+            offset = (node.data.indexOf(all) >= 0) ? node.data.indexOf(all) : args[args.length - 2],
+            newNode = node.splitText(offset);
+
+          newNode.data = newNode.data.substr(all.length);
+
+          callback.apply(window, [node].concat(args));
+
+          node = newNode;
+
+         });
+         break;
       }
-    }
-  }
+  } while (node = node.nextSibling);
 
-  return textNodes;
-}
+  return parent;
+};
 
 chrome.extension.sendRequest({method: "getJirafySettings"}, function(response) {
   if (response.project_keys && response.jira_server) {
     keys = response.project_keys.split(",");
-    replaceTicketNumbersWithLinks(keys, response.jira_server);
+    ignore_elements = (response.ignore_elements) ? response.ignore_elements.split(",") : [];
+    replaceTicketNumbersWithLinks(keys, response.jira_server, response.new_window, ignore_elements);
   }
 });

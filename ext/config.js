@@ -1,4 +1,4 @@
-var selectedProjects = []
+var selectedProjects = [];
 
 function jiraServerChanged() {
   $("#loadProjectKeys").show();
@@ -8,24 +8,32 @@ function jiraServerChanged() {
 // Saves options to localStorage.
 function save_options() {
   localStorage["urls_to_jirafy"] = $("#urls_to_jirafy").val();
+  localStorage["ignore_elements"] = $("#ignore_elements").val();
   localStorage["project_keys"] = $("#project_keys").val();
   localStorage["jira_server"] = getJiraServerValue();
+  localStorage["new_window"] = $("#new_window").is(":checked");
 }
 
 // Restores select box state to saved value from localStorage.
 function restore_options() {
   urlsToJirafy = $("#urls_to_jirafy");
+  ignoreElements = $("#ignore_elements");
   projectKeys = $("#project_keys");
   jiraServer = $("#jira_server");
+  newWindow = $("#new_window");
   setRealOnChange(urlsToJirafy, save_options);
+  setRealOnChange(ignoreElements, save_options);
   setRealOnChange(projectKeys, projectKeysChanged);
   setRealOnChange(jiraServer, jiraServerChanged);
+  setRealOnChange(newWindow, save_options);
 
   var hostnamesToJirafy = localStorage["urls_to_jirafy"];
   if (!hostnamesToJirafy) {
     return;
   }
   urlsToJirafy.val(localStorage["urls_to_jirafy"]);
+
+  ignoreElements.val(localStorage["ignore_elements"]);
 
   projectKeys.val(localStorage["project_keys"]);
 
@@ -34,13 +42,17 @@ function restore_options() {
     selectedProjects[keys[index]] = true;
   }
   jiraServer.val(localStorage["jira_server"]);
+
+  if(localStorage["new_window"] == 'true')  {
+    newWindow.attr('checked', 'checked');
+  }
 }
 
 function setRealOnChange(field, onChangeMethod) {
   (function () {
     var oldVal;
     field.bind('change keypress paste focus textInput input', function () {
-      var val = this.value;
+      var val = (field.is(":checkbox")) ? field.is(":checked") : this.value;
       if (val !== oldVal) {
         oldVal = val;
         onChangeMethod();
@@ -68,7 +80,7 @@ function loadJiraProjectKeys() {
       'id': 'project_checkboxes_container',
       'class': 'project-keys-list',
       html: items.join('')
-    }))
+    }));
     $("#project_checkboxes_container :input").click(function() {
       checkProject(this, this.value);
       // For some reason this doesn't fire our setRealOnChange event: manually fire it.
@@ -104,7 +116,7 @@ function checkProject(input, value) {
   }
   var projectStr = "";
   var first = true;
-  for(project in selectedProjects) {
+  for(var project in selectedProjects) {
     if (selectedProjects[project]) {
       if (!first && projectStr.length > 0) projectStr += ",";
       projectStr += project;
@@ -116,7 +128,7 @@ function checkProject(input, value) {
 
 // Safely parse the value of the jira server field, adding a trailing slash if there isn't one.
 function getJiraServerValue() {
-  field = $("#jira_server").val()
+  field = $("#jira_server").val();
   if (!field) return "";
   if (!field.match("/$")) {
     field = field + "/";

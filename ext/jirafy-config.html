@@ -36,6 +36,16 @@
               <div class="setting bundle description">
                 Comma-separated, can be any portion of the url.  For instance, to match any git server, use "git".  To restrict it to pull requests, use "git.example.com/myorg/myproject/pull".  Regexes NOT currently supported.
               </div>
+              <div class="setting bundle text">
+                <div class="setting container text">
+                  <label class="setting label text" for="ignore_elements">Ignore Elements</label>
+                  <input type="text" name="ignore_elements" id="ignore_elements" size="100" placeholder="a,textarea,code"/>
+                  <div id="project_checkboxes_container"></div>
+                </div>
+              </div>
+              <div class="setting bundle description">
+                Comma-separated elements that you would like to ignore. If you know you won't need to Jirafy any links in a particular element this could speed up the process.
+              </div>
             </td>
           </tr>
           <tr>
@@ -58,6 +68,20 @@
               </div>
               <div class="setting bundle description">
               </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="setting group-name">Links</td>
+            <td class="setting group-content">
+              <div class="setting bundle text">
+                <div class="setting container text">
+                  <label class="setting label text" for="new_window">Open Links in a new window</label>
+                  <div id="project_checkboxes_container">
+                    <input type="checkbox" name="new_window" id="new_window" />
+                  </div>
+                </div>
+              </div>
+              <div class="setting bundle description"></div>
             </td>
           </tr>
         </table>
