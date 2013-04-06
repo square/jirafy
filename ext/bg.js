@@ -1,14 +1,16 @@
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-    if (request.method == "getJirafySettings"
-        && matchesAnyUrlPatterns(sender.tab.url, localStorage['urls_to_jirafy'])) {
-      sendResponse({
-        urls_to_jirafy: localStorage['urls_to_jirafy'],
-        project_keys: localStorage['project_keys'],
-        jira_server: localStorage['jira_server']
-      });
-    } else {
-      sendResponse({}); // snub them.
-    }
+  var matchedUrl = matchesAnyUrlPatterns(sender.tab.url, localStorage['urls_to_jirafy']);
+
+  if (request.method == "getJirafySettings"
+      && matchedUrl) {
+    sendResponse({
+      urls_to_jirafy: matchedUrl,
+      project_keys: localStorage['project_keys'],
+      jira_server: localStorage['jira_server']
+    });
+  } else {
+    sendResponse({}); // snub them.
+  }
 });
 
 // Kick to the config page the first time this extension is installed.
@@ -33,7 +35,7 @@ function checkForValidUrl(tabId, changeInfo, tab) {
 function matchesAnyUrlPatterns(url, urls_to_jirafy) {
   urls = urls_to_jirafy.split(",");
   for(var c = 0; c < urls.length; c++) {
-    if (url.indexOf(urls[c]) != -1) return true;
+    if (url.indexOf(urls[c]) != -1) return urls[c];
   }
   return false;
 }
