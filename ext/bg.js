@@ -3,8 +3,10 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
         && matchesAnyUrlPatterns(sender.tab.url, localStorage['urls_to_jirafy'])) {
       sendResponse({
         urls_to_jirafy: localStorage['urls_to_jirafy'],
+        ignore_elements: localStorage['ignore_elements'],
         project_keys: localStorage['project_keys'],
-        jira_server: localStorage['jira_server']
+        jira_server: localStorage['jira_server'],
+        new_window: localStorage['new_window']
       });
     } else {
       sendResponse({}); // snub them.
@@ -27,7 +29,7 @@ function checkForValidUrl(tabId, changeInfo, tab) {
   if (matchesAnyUrlPatterns(tab.url, localStorage['urls_to_jirafy'])) {
     chrome.pageAction.show(tabId);
   }
-};
+}
 
 // Check to see if the url should have its content jirafied.
 function matchesAnyUrlPatterns(url, urls_to_jirafy) {
