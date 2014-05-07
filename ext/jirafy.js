@@ -1,3 +1,75 @@
+/*
+ * Global Variables
+ */
+var zGbl_PageChangedByAJAX_Timer = '';
+var zGlb_projectKeys = '';
+var zGlb_ignoreElements = '';
+var zGlb_jiraServer = '';
+var zGlb_targetWindow;
+
+/*
+ * Extension Settings
+ */
+chrome.extension.sendRequest({method: "getJirafySettings"}, function(response) {
+  if (response.project_keys && response.jira_server) {
+    zGlb_projectKeys = response.project_keys.split(",");
+    zGlb_ignoreElements = (response.ignore_elements) ? response.ignore_elements.split(",") : [];
+    zGlb_targetWindow = response.new_window;
+    zGlb_jiraServer = response.jira_server;
+    //PageBitHasLoaded(null);
+  }
+});
+
+/*
+ * Listeners
+ */
+window.addEventListener ("load", LocalMain, false);
+
+/*
+ * Methods related to AJAX Events
+*/
+function LocalMain ()
+{
+    if (typeof zGbl_PageChangedByAJAX_Timer == "number")
+    {
+        clearTimeout (zGbl_PageChangedByAJAX_Timer);
+        zGbl_PageChangedByAJAX_Timer  = '';
+
+    }
+    //throttle DOMNodeInserted processing prkoat
+    addDebouncedEventListener(document, "DOMNodeInserted", PageBitHasLoaded, 1000);
+}
+
+function PageBitHasLoaded (zEvent)
+{
+    if (typeof zGbl_PageChangedByAJAX_Timer == "number")
+    {
+        clearTimeout (zGbl_PageChangedByAJAX_Timer);
+        zGbl_PageChangedByAJAX_Timer  = '';
+    }
+    zGbl_PageChangedByAJAX_Timer      = setTimeout (function() {HandlePageChange (); }, 500);
+}
+
+function HandlePageChange ()
+{
+    removeEventListener ("DOMNodeInserted", PageBitHasLoaded, false);
+    replaceTicketNumbersWithLinks(zGlb_projectKeys, zGlb_jiraServer, zGlb_targetWindow, zGlb_ignoreElements);
+}
+
+function addDebouncedEventListener(obj, eventType, listener, delay) {
+    var timer;
+    
+    obj.addEventListener(eventType, function(evt) {
+            if (timer) {
+                window.clearTimeout(timer);
+            }
+            timer = window.setTimeout(function() { timer = null; listener.call(obj, evt); }, delay);
+   }, false);
+}
+
+/*
+ * Methods to convert the text to URLS
+*/
 var replaceTicketNumbersWithLinks = function(projectKeys, jiraServer, newWindow, ignoreElements, startNode) {
   var regex = getRegex(projectKeys),
     ignore = ['a', 'textarea'].concat(ignoreElements);
@@ -63,11 +135,3 @@ var getMatches = function(parent, regex, callback, ignore) {
 
   return parent;
 };
-
-chrome.extension.sendRequest({method: "getJirafySettings"}, function(response) {
-  if (response.project_keys && response.jira_server) {
-    keys = response.project_keys.split(",");
-    ignore_elements = (response.ignore_elements) ? response.ignore_elements.split(",") : [];
-    replaceTicketNumbersWithLinks(keys, response.jira_server, response.new_window, ignore_elements);
-  }
-});
