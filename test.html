@@ -123,6 +123,62 @@
         }, ignore);
         equal(node.innerHTML, 'http://example.com/jira/browse/FOO-108');
       });
+
+      asyncTest('Capture new AJAX link', function () {
+          var node = id('capture-new-ajax-link'), elem;
+          expect( 3 );
+          zGlb_ignoreElements = [];
+          zGlb_projectKeys = ['FOO'];
+          zGlb_jiraServer = 'http://example.com';
+          zGlb_targetWindow = 'false';
+
+          equal(node.innerHTML, 'FOO-18', 'Ticket without link');
+          handlePageChange();
+          equal(node.innerHTML, '<a href="http://example.com/browse/FOO-18">FOO-18</a>');
+
+          loadAJAXPage();
+          node = id('qunit-fixture');
+          elem = document.createElement('p');
+          elem.id = 'a-new-ajax-link';
+          elem.innerHTML = 'FOO-76';
+          node.appendChild(elem);
+
+          setTimeout(function() {
+                     equal(elem.innerHTML, '<a href="http://example.com/browse/FOO-76">FOO-76</a>');
+                     start();
+          }, 2000); //debounce is 1sec (consolidate number of DOM updates) PLUS 500ms timeout before processing
+      });
+
+      asyncTest('Capture multiple AJAX link', function () {
+          var node = id('capture-multiple-ajax-links'), elem;
+          expect( 3 );
+          zGlb_ignoreElements = [];
+          zGlb_projectKeys = ['FOO'];
+          zGlb_jiraServer = 'http://example.com';
+          zGlb_targetWindow = 'false';
+
+          loadAJAXPage();
+          node = id('qunit-fixture');
+          elem76 = document.createElement('p');
+          elem76.id = 'a-new-ajax-link-76';
+          elem76.innerHTML = 'FOO-76';
+          node.appendChild(elem76);
+          elem77 = document.createElement('p');
+          elem77.id = 'a-new-ajax-link-77';
+          elem77.innerHTML = 'FOO-77';
+          node.appendChild(elem77);
+          elem78 = document.createElement('p');
+          elem78.id = 'a-new-ajax-link-78';
+          elem78.innerHTML = 'FOO-78';
+          node.appendChild(elem78);
+
+          setTimeout(function() {
+                     equal(elem76.innerHTML, '<a href="http://example.com/browse/FOO-76">FOO-76</a>');
+                     equal(elem77.innerHTML, '<a href="http://example.com/browse/FOO-77">FOO-77</a>');
+                     equal(elem78.innerHTML, '<a href="http://example.com/browse/FOO-78">FOO-78</a>');
+                     start();
+         }, 2000);
+     });
     </script>
   </head>
   <body>
@@ -138,6 +194,8 @@
       <p id="multiple-insertion">Beer me FOO-23 and BAR-42 issues.</p>
       <p id="match-only-foo">FOO-15<br>BAR-16<br>PING-23<br>PONG-42</p>
       <p id="do-not-link-full-link">http://example.com/jira/browse/FOO-108</p>
+      <p id="capture-new-ajax-link">FOO-18</p>
+      <p id="capture-multiple-ajax-links">FOO-76 and FOO-77 and FOO-78</p>
     </div>
   </body>
 </html>
