@@ -16,38 +16,39 @@ function save_options() {
 
 // Restores select box state to saved value from localStorage.
 function restore_options() {
-  urlsToJirafy = $("#urls_to_jirafy");
-  ignoreElements = $("#ignore_elements");
-  projectKeys = $("#project_keys");
-  jiraServer = $("#jira_server");
-  newWindow = $("#new_window");
-  setRealOnChange(urlsToJirafy, save_options);
-  setRealOnChange(ignoreElements, save_options);
-  setRealOnChange(projectKeys, projectKeysChanged);
-  setRealOnChange(jiraServer, jiraServerChanged);
-  setRealOnChange(newWindow, save_options);
+  var $urlsToJirafy = $("#urls_to_jirafy");
+  var $ignoreElements = $("#ignore_elements");
+  var $projectKeys = $("#project_keys");
+  var $jiraServer = $("#jira_server");
+  var $newWindow = $("#new_window");
 
-  var hostnamesToJirafy = localStorage["urls_to_jirafy"];
-  if (!hostnamesToJirafy) {
-    return;
+  var urlsToJirafy = localStorage.getItem("urls_to_jirafy");
+  var projectKeys = localStorage.getItem("project_keys");
+  var jiraServer = localStorage.getItem("jira_server");
+  // Boolean is saved as string so we need to convert it.
+  var newWindow = JSON.parse(localStorage.getItem("new_window"));
+
+  setRealOnChange($urlsToJirafy, save_options);
+  setRealOnChange($ignoreElements, save_options);
+  setRealOnChange($projectKeys, projectKeysChanged);
+  setRealOnChange($jiraServer, jiraServerChanged);
+  setRealOnChange($newWindow, save_options);
+
+  $urlsToJirafy.val(urlsToJirafy);
+  $projectKeys.val(projectKeys);
+  $jiraServer.val(jiraServer);
+  $newWindow.prop('checked', newWindow);
+
+  if (!ignoreElements) {
+    localStorage.setItem("ignore_elements", "pre,code");
   }
-  urlsToJirafy.val(localStorage["urls_to_jirafy"]);
 
-  localStorage["ignore_elements"] = localStorage.getItem("ignore_elements")!==null
-    ? localStorage["ignore_elements"]
-    : "pre,code";
-  ignoreElements.val(localStorage["ignore_elements"]);
+  var ignoreElements = localStorage.getItem("ignore_elements");
+  $ignoreElements.val(ignoreElements);
 
-  projectKeys.val(localStorage["project_keys"]);
-
-  keys = localStorage["project_keys"].split(",");
+  var keys = projectKeys ? projectKeys.split(",") : [];
   for (index = 0; index < keys.length; index++) {
     selectedProjects[keys[index]] = true;
-  }
-  jiraServer.val(localStorage["jira_server"]);
-
-  if(localStorage["new_window"] == 'true')  {
-    newWindow.attr('checked', 'checked');
   }
 }
 
