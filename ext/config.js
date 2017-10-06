@@ -1,6 +1,12 @@
 var selectedProjects = [];
 
 function jiraServerChanged() {
+  var jiraServerField = $("#jira_server");
+
+  if (!jiraServerField[0].checkValidity()) {
+    jiraServerField[0].reportValidity();
+  }
+
   $("#loadProjectKeys").show();
   save_options();
 }
