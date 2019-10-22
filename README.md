@@ -4,9 +4,11 @@ Jirafy
 ![Logo](ext/icon_128.png)
 
 Chrome extension that linkifies JIRA ticket numbers on a configurable set of
-webpages.  If you only need this to work on GitHub, just use [Github's Autolinked Resources][2] feature.
+webpages.  
 
-Available from [the Chrome Store][1].
+If you only need this to work on GitHub, just use [Github's Autolinked Resources][2] feature.
+
+This used to be available from the Chrome Store but it somehow got unpublished.  There's a _different_ extension in the Chrome store by the same name.  Buyer beware!  And if somebody still has the keys to publish this, I guess you can republish this one but I'm not sure anyone is still using it.
 
 Developing
 ----------
